@@ -31,3 +31,6 @@ static: ## build static-compiled packages
 	for p in $(DOCKER_BUILD_PKGS); do \
 		$(MAKE) -C $@ VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
 	done
+
+static-linux: ## build static-compiled packages only for linux
+	$(MAKE) -C static VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) static-linux
