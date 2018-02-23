@@ -27,6 +27,14 @@ static-linux: static-cli static-engine ## create tgz with linux x86_64 client an
 	done
 	tar -C build/linux -c -z -f build/linux/docker-$(VERSION).tgz docker
 
+ros-static-linux: static-cli static-engine ## create tgz with linux x86_64 client and server
+	mkdir -p build/linux/docker
+	cp $(CLI_DIR)/build/docker build/linux/docker/system-docker
+	for f in dockerd docker-containerd docker-containerd-ctr docker-containerd-shim docker-init docker-proxy docker-runc; do \
+		cp $(ENGINE_DIR)/bundles/$(ENGINE_VER)/binary-daemon/$$f build/linux/docker/system-$$f; \
+	done
+	tar -C build/linux -c -z -f build/linux/docker-$(VERSION).tgz docker
+
 hash_files:
 	@echo "Hashing directory $(DIR_TO_HASH)"
 	$(HASH_CMD) "$(DIR_TO_HASH)"

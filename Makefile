@@ -4,7 +4,7 @@ CLI_DIR:=$(CURDIR)/../cli
 VERSION=unknown
 DOCKER_GITCOMMIT:=abcdefg
 
-.PHONY: help clean rpm deb static
+.PHONY: help clean rpm deb static ros-static
 
 help: ## show make targets
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf " \033[36m%-20s\033[0m  %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -30,4 +30,10 @@ static: DOCKER_BUILD_PKGS:=static-linux cross-mac cross-win cross-arm
 static: ## build static-compiled packages
 	for p in $(DOCKER_BUILD_PKGS); do \
 		$(MAKE) -C $@ VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
+	done
+
+ros-static: DOCKER_BUILD_PKGS:=ros-static-linux
+ros-static: ## build static-compiled packages
+	for p in $(DOCKER_BUILD_PKGS); do \
+		$(MAKE) -C static VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
 	done
