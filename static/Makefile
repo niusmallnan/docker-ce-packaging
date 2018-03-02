@@ -7,6 +7,7 @@ VERSION=$(shell cat $(ENGINE_DIR)/VERSION)
 CHOWN=docker run --rm -v $(CURDIR):/v -w /v $(ALPINE_IMG) chown
 HASH_CMD=docker run -v $(CURDIR):/sum -w /sum debian:jessie bash hash_files
 DIR_TO_HASH:=build/linux
+ARCH:=$(shell $(CURDIR)/../detect_arch)
 
 .PHONY: help clean static static-linux cross-mac cross-win cross-arm static-cli static-engine cross-all-cli cross-win-engine hash_files
 
@@ -27,13 +28,13 @@ static-linux: static-cli static-engine ## create tgz with linux x86_64 client an
 	done
 	tar -C build/linux -c -z -f build/linux/docker-$(VERSION).tgz docker
 
-ros-static-linux: static-cli static-engine ## create tgz with linux x86_64 client and server
+ros-static-linux: ros-static-cli ros-static-engine ## create tgz with linux x86_64 and arm64 client and server
 	mkdir -p build/linux/docker
 	cp $(CLI_DIR)/build/docker build/linux/docker/system-docker
 	for f in dockerd docker-containerd docker-containerd-ctr docker-containerd-shim docker-init docker-proxy docker-runc; do \
 		cp $(ENGINE_DIR)/bundles/$(ENGINE_VER)/binary-daemon/$$f build/linux/docker/system-$$f; \
 	done
-	tar -C build/linux -c -z -f build/linux/docker-$(VERSION).tgz docker
+	tar -C build/linux -c -z -f build/linux/docker-${ARCH}-$(VERSION).tgz docker
 
 hash_files:
 	@echo "Hashing directory $(DIR_TO_HASH)"
@@ -59,8 +60,12 @@ cross-arm: cross-all-cli ## create tgz with linux armhf client only
 static-cli:
 	$(MAKE) -C $(CLI_DIR) -f docker.Makefile VERSION=$(VERSION) build
 
+ros-static-cli: static-cli
+
 static-engine:
 	$(MAKE) -C $(ENGINE_DIR) binary
+
+ros-static-engine: static-engine
 
 cross-all-cli:
 	$(MAKE) -C $(CLI_DIR) -f docker.Makefile VERSION=$(VERSION) cross
