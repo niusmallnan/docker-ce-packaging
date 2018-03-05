@@ -28,13 +28,17 @@ static-linux: static-cli static-engine ## create tgz with linux x86_64 client an
 	done
 	tar -C build/linux -c -z -f build/linux/docker-$(VERSION).tgz docker
 
-ros-static-linux: ros-static-cli ros-static-engine ## create tgz with linux x86_64 and arm64 client and server
+ros-base:
 	mkdir -p build/linux/docker
 	cp $(CLI_DIR)/build/docker build/linux/docker/system-docker
 	for f in dockerd docker-containerd docker-containerd-ctr docker-containerd-shim docker-init docker-proxy docker-runc; do \
 		cp $(ENGINE_DIR)/bundles/$(ENGINE_VER)/binary-daemon/$$f build/linux/docker/system-$$f; \
 	done
 	tar -C build/linux -c -z -f build/linux/docker-${ARCH}-$(VERSION).tgz docker
+
+ros-static-linux-amd64: ros-static-cli-amd64 ros-static-engine ros-base## create tgz with linux x86_64 client and server
+
+ros-static-linux-arm64: ros-static-cli-arm64 ros-static-engine ros-base## create tgz with linux arm64 client and server
 
 hash_files:
 	@echo "Hashing directory $(DIR_TO_HASH)"
@@ -60,7 +64,12 @@ cross-arm: cross-all-cli ## create tgz with linux armhf client only
 static-cli:
 	$(MAKE) -C $(CLI_DIR) -f docker.Makefile VERSION=$(VERSION) build
 
-ros-static-cli: static-cli
+static-cli-arm64:
+	$(MAKE) -C $(CLI_DIR) -f docker.Makefile VERSION=$(VERSION) build_arm64
+
+ros-static-cli-amd64: static-cli
+
+ros-static-cli-arm64: static-cli-arm64
 
 static-engine:
 	$(MAKE) -C $(ENGINE_DIR) binary

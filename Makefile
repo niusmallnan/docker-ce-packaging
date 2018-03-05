@@ -32,8 +32,14 @@ static: ## build static-compiled packages
 		$(MAKE) -C $@ VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
 	done
 
-ros-static: DOCKER_BUILD_PKGS:=ros-static-linux
-ros-static: ## build static-compiled packages
+ros-static-amd64: DOCKER_BUILD_PKGS:=ros-static-linux-amd64
+ros-static-amd64: ## build static-compiled packages
+	for p in $(DOCKER_BUILD_PKGS); do \
+		$(MAKE) -C static VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
+	done
+
+ros-static-arm64: DOCKER_BUILD_PKGS:=ros-static-linux-arm64
+ros-static-arm64: ## build static-compiled packages
 	for p in $(DOCKER_BUILD_PKGS); do \
 		$(MAKE) -C static VERSION=$(VERSION) ENGINE_DIR=$(ENGINE_DIR) CLI_DIR=$(CLI_DIR) $${p}; \
 	done
